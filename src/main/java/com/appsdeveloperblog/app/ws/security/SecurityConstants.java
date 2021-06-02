@@ -7,6 +7,8 @@ public class SecurityConstants {
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
     public static final String SIGN_UP_URL = "/users";
+    public static final String EMAIL_VERIFICATION_URL = "/users/email-verification";
+
 
     /*
     This is non changing class so we have created intermediate class called appProperties

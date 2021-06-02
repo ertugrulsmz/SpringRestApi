@@ -12,6 +12,13 @@ public class AppProperties {
 
     public String getTokenSecret(){
         return env.getProperty("tokenSecret");
+    }
 
+    public String getSenderUserName(){
+        return env.getProperty("senderUsername");
+    }
+
+    public String getsenderPassword(){
+        return env.getProperty("senderPassword");
     }
 }

@@ -1,0 +1,66 @@
+package com.appsdeveloperblog.app.ws.ui.model.response;
+
+
+import org.springframework.hateoas.RepresentationModel;
+
+public class AddressRest extends RepresentationModel<AddressRest>{
+
+    // Does not include id field which exists in dto for database
+    private String addressId; // not in request model, but dto carry, entity fill, in response it will be filled
+    private String city;
+    private String country;
+    private String streetName;
+    private String postalCode;
+    private String type;
+    //private UserDto userDetails; // --> Create bidirectional relationship will be in entity and recorded
+    // biderectional not in addressRest
+
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(String addressId) {
+        this.addressId = addressId;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+}
