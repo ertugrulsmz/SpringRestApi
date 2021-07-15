@@ -60,7 +60,7 @@ public class AuthenticationFilter  extends UsernamePasswordAuthenticationFilter 
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        String username = ((User)authResult.getPrincipal()).getUsername();
+        String username = ((MyCustomUserDetails)authResult.getPrincipal()).getUsername();
 
         String token = Jwts.builder()
                 .setSubject(username)

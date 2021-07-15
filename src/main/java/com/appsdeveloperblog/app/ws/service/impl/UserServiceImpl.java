@@ -1,5 +1,8 @@
 package com.appsdeveloperblog.app.ws.service.impl;
 
+import com.appsdeveloperblog.app.ws.io.entity.RoleEntity;
+import com.appsdeveloperblog.app.ws.io.repository.RoleRepository;
+import com.appsdeveloperblog.app.ws.security.MyCustomUserDetails;
 import com.appsdeveloperblog.app.ws.service.external.EmailConstants;
 import com.appsdeveloperblog.app.ws.service.external.EmailService;
 import com.appsdeveloperblog.app.ws.service.external.EmailServiceImpl;
@@ -25,6 +28,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -32,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private Utils utils;
@@ -50,12 +58,15 @@ public class UserServiceImpl implements UserService {
         }
 
         //Create bidirectional connection and addressID
-        for (int i = 0 ; i<user.getAddresses().size();i++){
-            AddressDto addressDto = user.getAddresses().get(i);
-            addressDto.setUserDetails(user);
-            addressDto.setAddressId(utils.generateAddressId(30));
+        if(user.getAddresses() != null){
+            for (int i = 0 ; i<user.getAddresses().size();i++){
+                AddressDto addressDto = user.getAddresses().get(i);
+                addressDto.setUserDetails(user);
+                addressDto.setAddressId(utils.generateAddressId(30));
+            }
         }
 
+        //Mapped to UserEntity
         UserEntity userEntity = new ModelMapper().map(user,UserEntity.class);
 
         userEntity.setEncryptedPassword(bcryptPasswordEncoder.encode(user.getPassword()));
@@ -66,10 +77,24 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmailVerificationToken(generatedEmailToken);
         userEntity.setEmailVerificationStatus(false); // Not confirmed yet.
 
+        //Add role
+        Collection<RoleEntity> roleEntities = new HashSet<>();
+        
+        for(String role : user.getRoles()){
+            RoleEntity roleEntity = roleRepository.findByName(role);
+            if(roleEntity != null){
+                roleEntities.add(roleEntity);
+            }
+            //Not case is not allowed yet...
+        }
+        userEntity.setRoles(roleEntities);
+
         // send e-mail
-        emailService.
+        /*emailService.
                 sendSimpleMessage(userEntity.getEmail(),
-                EmailType.VERIFICATION.name(), EmailConstants.getVerificationSubject(generatedEmailToken));
+                EmailType.VERIFICATION.name(), EmailConstants.getVerificationSubject(generatedEmailToken));*/
+
+        userEntity.setEmailVerificationStatus(true);
 
         UserEntity storedUserEntity = userRepository.save(userEntity);
 
@@ -151,10 +176,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean verifyEmailToken(String token) {
 
-
-
-
-
         boolean returnValue = false;
         UserEntity userEntity = userRepository.findUserByEmailVerificationToken(token);
         //Normally the user might be checked if he/she is the on who enters it.
@@ -180,11 +201,10 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findUserByEmail(email);
 
         if(userEntity == null) throw new UsernameNotFoundException(email);
-        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
-                userEntity.getEmailVerificationStatus(),
-                true,true,true,
-                new ArrayList<>());
 
+        return new MyCustomUserDetails(userEntity);
+        //return new User(functionFindAuthorities(userEntity), functionFind...())
+        // But we are doing oop right ?
     }
 
 }

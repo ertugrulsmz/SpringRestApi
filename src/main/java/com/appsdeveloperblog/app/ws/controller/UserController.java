@@ -3,6 +3,7 @@ package com.appsdeveloperblog.app.ws.controller;
 
 import com.appsdeveloperblog.app.ws.service.AddressService;
 import com.appsdeveloperblog.app.ws.service.UserService;
+import com.appsdeveloperblog.app.ws.shared.RoleNames;
 import com.appsdeveloperblog.app.ws.shared.dto.AddressDto;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
 import com.appsdeveloperblog.app.ws.ui.model.request.UserDetailsRequestModel;
@@ -16,6 +17,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -35,6 +37,7 @@ public class UserController {
     public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails)  {
 
         UserDto userDto = new ModelMapper().map(userDetails,UserDto.class);
+        userDto.setRoles(Arrays.asList(RoleNames.ROLE_USER.name()));
 
         UserDto createdUser = userService.createUser(userDto);
 
@@ -43,6 +46,9 @@ public class UserController {
         return returnValue;
     }
 
+    //ReturnObject **> returnValue
+    //principal --> MyCustomUserDetails
+    @PostAuthorize("hasRole('ADMIN')or returnObject.userId == principal.userId")
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
     public UserRest getUser(@PathVariable String id)
     {
@@ -161,6 +167,7 @@ public class UserController {
     }
 
     @GetMapping(path="email-verification", produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
+    @CrossOrigin(origins = "* ")
     public OperationStatusModel verifyEmailToken(@RequestParam(value="token") String token){
         OperationStatusModel returnValue = new OperationStatusModel();
         returnValue.setOperationName(RequestOperationName.VERIFY_EMAIL.name()); // it requires string

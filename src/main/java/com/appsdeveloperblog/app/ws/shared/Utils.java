@@ -18,14 +18,25 @@ public class Utils {
     private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     public static boolean hasTokenExpired(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(SecurityConstants.getTokenSecret()) // key we embedded to encryption and we will decode by that
-                .parseClaimsJws(token).getBody();
 
-        Date tokenExpiration = claims.getExpiration();
-        Date today = new Date();
+        // Any Exception shall be handled.
+        try {
 
-        return tokenExpiration.before(today); // is expiration before today.
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SecurityConstants.getTokenSecret()) // key we embedded to encryption and we will decode by that
+                    .parseClaimsJws(token).getBody();
+
+            Date tokenExpiration = claims.getExpiration();
+            Date today = new Date();
+
+            return tokenExpiration.before(today); // is expiration before today.
+
+        }
+        catch (Exception e){
+            return false;
+        }
+
+
     }
 
     public String generateUserId(int length){
